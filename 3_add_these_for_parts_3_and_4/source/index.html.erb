@@ -1,0 +1,62 @@
+---
+title: Welcome To Red:4
+---
+<style>
+#splash {
+  background: url(/images/splash.jpg) no-repeat center center fixed;
+  min-height: 720px;
+
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+</style>
+<div id="splash" class="ui inverted vertical masthead center aligned segment">
+
+  <%=partial "partials/topnav"%>
+
+  <div class="ui text container">
+    <h1 class="ui inverted header">
+      Welcome to Red:4
+    </h1>
+    <h2>Our heads are in space...</h2>
+    <div class="ui huge primary button">Buy Something <i class="right arrow icon"></i></div>
+  </div>
+
+</div>
+<div class="ui container" style="margin-top:52px">
+  <div class="ui centered cards">
+    <% blog.articles.each do |p| %>
+      <div class="ui card">
+
+        <a class="image" href="<%=p.url%>">
+          <img src="/images/products/<%=p.data.image%>">
+        </a>
+
+        <div class="content">
+          <div class="header">
+            <a href="<%=p.url%>">
+              <%=p.data.title%>
+            </a>
+          </div>
+          <div class="meta">
+            <%=p.data.vendor%>
+          </div>
+          <div class="description">
+            <%=p.data.summary%>
+          </div>
+        </div>
+        <div class="extra content">
+          <span class="right floated">
+            <%=p.date.strftime('%B %m, %Y')%>
+          </span>
+          <span>
+            <i class="cart icon"></i>
+            <%=number_to_currency(p.data.price)%>
+          </span>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

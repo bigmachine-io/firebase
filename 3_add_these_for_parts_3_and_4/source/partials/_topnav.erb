@@ -1,0 +1,109 @@
+<div class="ui fixed inverted menu" style="border:0;background-color:#000;height:40px;">
+  <div class="ui container">
+    <a class="active item" href="/">Home</a>
+    <a class="item">Products</a>
+    <a class="item">About</a>
+    
+    <div id="auth" class="right item">
+
+      <a  v-if="notLoggedIn()" v-on:click="showLogin" class="nav item" >Login</a>
+
+      <div v-if="loggedIn()" class="nav item">
+        <img class="ui avatar image" :src="profileImage"> &nbsp;
+        <a href="/my-account">{{name}}</a>
+      </div>
+
+      <a  v-if="loggedIn()"  class="nav item" style="color:#ff4500" v-on:click="logout">Logout</a>
+      <a class=" item" href="/order">
+        <i class = "cart icon"></i> Cart
+      </a>
+
+      <div id="login-modal" class="ui modal">
+        <div class="header">Login/Signup</div>
+        <div class="ui two column center aligned grid" style="padding:24px">
+          <div class="sixteen wide centered column">
+            <div class="ui middle aligned selection list">
+              <div class="item">
+                <button id="github-login" class="ui large github button" style="min-width: 200px" v-on:click="loginGithub">
+                  <i class="icon github"></i>
+                  Github
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="sixteen wide column" v-if="haveError()">
+            <div class="ui negative message">
+              <i class="close icon"></i>
+              <div class="header">
+                Oops - there's a small problem...
+              </div>
+              <p>{{error}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var currentUser = {
+  error: null,
+  id: null,
+  name: null,
+  email: null,
+  profileImage: null
+};
+firebase.auth().onAuthStateChanged(function(user) {
+  if(user){
+    currentUser.email = user.email;
+    currentUser.id = user.uid;
+    currentUser.name = user.displayName;
+    currentUser.profileImage = user.photoUrl || user.photoURL;
+    currentUser.error = null;
+  }else{
+    currentUser.email = null;
+    currentUser.id = null;
+    currentUser.name = null;
+    currentUser.profileImage = null;
+  }
+});
+var auth = new Vue({
+  el: "#auth",
+  data: currentUser,
+  methods: {
+    showLogin: function(ev){
+      ev.preventDefault();
+      $('.ui.modal').modal('show');
+    },
+    loggedIn: function(){
+      return this.email;
+    },
+    notLoggedIn: function(){
+      return !this.loggedIn();
+    },
+    haveError: function(){
+      return this.error;
+    },
+    logout: function(ev){
+      ev.preventDefault();
+      firebase.auth().signOut();
+    },
+    loginGithub: function(){
+      var provider = new firebase.auth.GithubAuthProvider();
+      this.popLogin(provider);
+    },
+    popLogin: function(provider){
+      firebase.auth().signInWithPopup(provider).then(function(result) {
+        $("#login-modal").modal('hide dimmer'); //hacky but... oh well
+      }).catch(function(error) {
+        if (error.code === 'auth/account-exists-with-different-credential') {
+          currentUser.error = "You have already signed up with a different auth provider for that email."
+        } else {
+          currentUser.error = error.message;
+        }
+      });
+    }
+  }
+});
+</script>

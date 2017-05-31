@@ -1,0 +1,23 @@
+{
+  "rules": {
+    
+    "catalog" : {
+      ".read": true,
+    	".write": false  
+    },
+    "sales" : {
+      ".read": false,
+    	".write": false,
+      "$each_sale" :{
+        "progress" : {
+          ".read" : true,
+          ".write" : false
+        },
+        "invoice" : {
+          ".read" : true,
+          ".write" : false
+        }
+      }
+    }
+  }
+}

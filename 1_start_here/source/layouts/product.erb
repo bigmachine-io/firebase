@@ -1,0 +1,46 @@
+<%wrap_layout :layout do%>
+<style>
+#splash {
+  background: url(/images/products/<%=current_page.data.image%>) no-repeat center center fixed;
+  min-height: 720px;
+
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+</style>
+<div id="splash" class="ui inverted vertical masthead center aligned segment">
+
+  <%=partial "partials/topnav"%>
+
+  <div class="ui text container">
+    <h1 class="ui inverted header">
+      <%=current_page.data.title%>
+    </h1>
+    <h2><%=current_page.data.summary%></h2>
+    <div id="buy-now" class="ui centered huge primary button"> Buy Now: <%=number_to_currency(current_page.data.price/100)%> <i class="cart icon"></i></div>
+  </div>
+
+</div>
+<div class="ui text container" style="margin-top:52px">
+  <%=yield%>
+</div>
+<%end%>
+<script src="/assets/js/cart.js"></script>
+<script>
+var sku = "<%=current_page.data.sku%>";
+$(function(){
+  $("#buy-now").on("click", function(){
+    Cart.addItem({
+      sku: "<%=current_page.data.sku%>",
+      name: "<%=current_page.data.title%>",
+      image: "<%=current_page.data.image%>",
+      price: "<%=current_page.data.price%>",
+      description: "<%=current_page.data.summary%>"
+    });
+    Cart.save();
+    location.href="/order";
+  });
+})
+</script>

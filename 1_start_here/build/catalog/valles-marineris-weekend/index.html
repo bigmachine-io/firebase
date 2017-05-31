@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Standard Meta -->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <!-- Site Properties -->
+  <title>A Weekend in Valles Marinaris</title>
+  <link rel="stylesheet" type="text/css" href="/assets/css/semantic.css">
+  <link rel="stylesheet" type="text/css" href="/assets/css/custom.css">
+ 
+  <script src="/assets/js/vendor/jquery.min.js"></script>
+  <script src="/assets/js/vendor/semantic.js"></script>
+  <script src="/assets/js/vendor/moment.min.js"></script>
+  <script src="/assets/js/vendor/accounting.min.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyADX0UzddWwoU2fHkyF5IBmGm4c9-GQ4u8",
+      authDomain: "red4-50295.firebaseapp.com",
+      databaseURL: "https://red4-50295.firebaseio.com",
+      projectId: "red4-50295",
+      storageBucket: "red4-50295.appspot.com",
+      messagingSenderId: "249297301620"
+    };
+    firebase.initializeApp(config);
+  </script>
+  <script src="/assets/js/vendor/vue.min.js"></script>   
+</head>
+<body>
+  <style>
+#splash {
+  background: url(/images/products/valles-marineris-weekend.jpg) no-repeat center center fixed;
+  min-height: 720px;
+
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+</style>
+<div id="splash" class="ui inverted vertical masthead center aligned segment">
+
+  <div class="ui fixed inverted menu" style="border:0;background-color:#000;height:40px;">
+  <div class="ui container">
+    <a class="active item" href="/">Home</a>
+    <a class="item">Products</a>
+    <a class="item">About</a>
+    
+    <div id="auth" class="right item">
+
+      <a class="nav item" >Login</a>
+
+      <a class=" item" href="/order">
+        <i class = "cart icon"></i> Cart
+      </a>
+
+    </div>
+  </div>
+</div>
+
+  <div class="ui text container">
+    <h1 class="ui inverted header">
+      A Weekend in Valles Marinaris
+    </h1>
+    <h2>Come get lost in one of the biggest trenches in the solar system</h2>
+    <div id="buy-now" class="ui centered huge primary button"> Buy Now: $35.00 <i class="cart icon"></i></div>
+  </div>
+
+</div>
+<div class="ui text container" style="margin-top:52px">
+  <h2 id="get-yourself-in-deep">Get yourself in deep…</h2>
+
+<p>With our Weekend Trip to Valles Marinaris. We'll trek along the terrifying edges of the huge, deep crack in the surface of Mars. You'll forget your fears as we walk deeper and deeper into the interior of the Red Planet.</p>
+
+</div>
+
+    <div class="ui inverted vertical footer segment" style="margin-top:52px">
+    <div class="ui container">
+      <div class="ui stackable inverted divided equal height stackable grid">
+        <div class="three wide column">
+          <h4 class="ui inverted header">About</h4>
+          <div class="ui inverted link list">
+            <a href="#" class="item">Sitemap</a>
+            <a href="#" class="item">Contact Us</a>
+            <a href="#" class="item">Moon Shots</a>
+            <a href="#" class="item">Orbital Calculations</a>
+          </div>
+        </div>
+        <div class="three wide column">
+          <h4 class="ui inverted header">Services</h4>
+          <div class="ui inverted link list">
+            <a href="#" class="item">Solar Flare Observation</a>
+            <a href="#" class="item">Go/No-go Calculations</a>
+            <a href="#" class="item">Euler Derivations</a>
+            <a href="#" class="item">Asteroid Prospecting</a>
+          </div>
+        </div>
+        <div class="seven wide column">
+          <h4 class="ui inverted header">Space Is The Place</h4>
+          <p>Don't be held down by gravity! There's a lot more nothing to see in space!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ 
+
+</body>
+</html>
+<script src="/assets/js/cart.js"></script>
+<script>
+var sku = "valles-marineris-weekend";
+$(function(){
+  $("#buy-now").on("click", function(){
+    Cart.addItem({
+      sku: "valles-marineris-weekend",
+      name: "A Weekend in Valles Marinaris",
+      image: "valles-marineris-weekend.jpg",
+      price: "3500",
+      description: "Come get lost in one of the biggest trenches in the solar system"
+    });
+    Cart.save();
+    location.href="/order";
+  });
+})
+</script>

@@ -1,0 +1,189 @@
+---
+layout: empty
+title: Current Order
+---
+<script src="https://checkout.stripe.com/checkout.js"></script>
+<div id="order" class="ui container">
+  <div class="ui horizontal divider">
+    <h2 class="ui header">Your Order</h2>
+  </div>
+
+  <div v-if="!hasItems" class="ui centered container" style="margin-top:52px">
+    <i>There's nothing here! <a href="/">Go buy something!</a></i>
+  </div>
+
+  <div v-if="hasItems" class="ui stackable grid">
+    <div id='item-table' class="ten wide column">
+      <div class="ui items">
+        <template v-for="item in items">
+          <div class="item">
+            <div class="ui medium image">
+              <img :src=`/images/products/${item.image}`>
+            </div>
+            <div class="content">
+              <div class="header">{{item.name}}</div>
+              <div class="meta">
+                <span class="price">{{ item.quantity }} x {{item.price | money}}</span>
+              </div>
+              <div class="description">
+                <p>{{item.description}}</p>
+              </div>
+              <div class="extra">
+                <button v-on:click="remove(item)" class="ui right floated small red button">
+                  <i class="remove icon"></i> Remove
+                </button>
+                <div class="ui big label">{{item.lineTotal() | money}}</div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+    <div id="payments" class="six wide column show-checkout">
+      <div class="ui center aligned padded segment">
+        <h3 class="ui header">Payment</h3>
+        
+        <button v-on:click="openStripe" class="ui center aligned medium blue button">
+          <i class="stripe icon"></i>
+          Pay With Credit Card
+        </button>
+        <div class="ui horizontal divider">
+          Or
+        </div>
+
+        <button id="paypal-button" class="ui center aligned medium yellow button">
+          <i class="paypal icon"></i>
+          Pay With PayPal
+        </button>
+      </div>
+      <p><i>This is a test page so use 4242 4242 4242 4242</i></p>
+    </div>
+    <div class="sixteen wide column hide-checkout" style="display:none">
+      <div class="ui fluid steps">
+        <div v-bind:class="{completed: progress.tallied, active: true, step: true}">
+          <i class="hand peace icon"></i>
+          <div class="content">
+            <div class="title">Received</div>
+            <div class="description">Processing...</div>
+          </div>
+        </div>
+        <div v-bind:class="{completed: progress.captured, active: progress.tallied, step: true}">
+          <i class="payment icon"></i>
+          <div class="content">
+            <div class="title">Charged</div>
+            <div class="description">We got your $$</div>
+          </div>
+        </div>
+        <div v-bind:class="{completed: progress.fulfilled, active: progress.invoiced, step: true}">
+          <i class="download icon"></i>
+          <div class="content">
+            <div class="title">Fulfilled</div>
+            <div class="description">Downloads ready!</div>
+          </div>
+        </div>
+        <div v-bind:class="{completed: progress.notified, active: progress.fulfilled, step: true}">
+          <i class="envelope icon"></i>
+          <div class="content">
+            <div class="title">Email Sent</div>
+            <div class="description">You should hear a ding soon...</div>
+          </div>
+        </div>
+      </div>
+      <div v-if="progress.invoiced" class="ui container" style="margin-top:52px">
+        <h3 class="ui centered header">Order Number: {{orderId}}</h3>
+        <p>Thank you for your order! The downloads are below, please note that they are limited. We also ask you
+        kindly to not share.
+        You will receive an email shortly with your download information. Please hang on to it as it is your record of sale.
+        </p>
+      </div>
+      <div class="ui horizontal divider">
+        <h4 class="ui header">Downloads</h4>
+      </div>
+      <div v-if="progress.invoiced" class="ui divided items">
+        <div v-for="download in invoice.deliverables" class="item">
+          <i class="huge file archive outline icon"></i>
+          <div class="content">
+            <div class="header">{{download.name}}</div>
+            <div class="extra">
+              <button class="ui small basic button" v-on:click="execDownload(download)" :id=`download-${download.id}` :disabled="noDownloads(download)">
+                <i class="download icon"></i>{{downloadButton(download)}}
+              </button>
+              {{download.downloadsRemaining}} downloads left of {{download.limit}} total.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script src="/assets/js/cart.js"></script>
+<script src="/assets/js/vendor/vuefire.min.js"></script>
+
+<script>
+Vue.use(VueFire);
+var db = firebase.database();
+let processing = false;
+Cart.load();
+
+var handler = StripeCheckout.configure({
+  key: 'TESTKEY HERE',
+  image: 'https://app.redfour.io/images/icon/apple-icon-180x180.png',
+  locale: 'auto',
+  zipCode: true,
+  billingAddress: true,
+  token: function(token) {
+    var payload = {
+      order: {
+        id: Cart.orderId,
+        userId: currentUser.id,
+        processor: "stripe",
+        ip: token.client_ip,
+        email: token.email,
+        items: Cart.items
+      },
+      payment: token
+    };
+    var checkoutUrl = "";
+    $.ajax({ 
+        type: 'POST', 
+        url: checkoutUrl, 
+        data: payload,
+        dataType: 'json'
+    }).done(res => {
+      console.log(res)
+    }).fail(err => {
+      console.log(err);
+    });
+  }
+});
+
+var app = new Vue({
+  el: "#order",
+  data: Cart,
+  computed : {
+    hasItems : function(){
+      return this.items.length > 0;
+    }
+  },
+  filters : {
+    money: function(val){
+      return accounting.formatMoney(val/100);
+    }
+  },
+  methods: {
+    remove: function(item){
+      Cart.removeItem(item.sku);
+    },
+    openStripe: function(ev){
+      var total = accounting.formatMoney(Cart.total/100);
+      ev.preventDefault();
+      handler.open({
+        name: 'Red:4',
+        description: Cart.items.length + " items: " + total,
+        amount: Cart.total
+      });
+    }
+  }
+});
+</script>
